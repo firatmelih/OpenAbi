@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenAbi: your files' big brother</title>
+  <meta name="description" content="OpenAbi is a free, open-source macOS app that adds your favorite apps to Finder's right-click menu. Drag an app onto a file type and you're done.">
+  <meta name="theme-color" content="#d9342b">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:title" content="OpenAbi: your files' big brother">
+  <meta property="og:description" content="Put your favorite apps in Finder's right-click menu. Free and open source for macOS.">
+  <meta property="og:image" content="https://firatmelih.github.io/OpenAbi/assets/icon.png">
+  <meta property="og:url" content="https://firatmelih.github.io/OpenAbi/">
+  <meta name="twitter:card" content="summary">
+  <style>
+    :root {
+      --bg: #fbf7f3;
+      --bg-elev: #ffffff;
+      --bg-sunk: #f3ece5;
+      --text: #1d1d1f;
+      --text-2: #5f5a57;
+      --line: rgba(59, 33, 24, 0.12);
+      --red: #d9342b;
+      --red-deep: #b51d1f;
+      --brown: #3b2118;
+      --cream: #fff3e4;
+      --shadow: 0 1px 2px rgba(59,33,24,.06), 0 12px 32px rgba(59,33,24,.10);
+      --radius: 18px;
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141213;
+        --bg-elev: #1f1c1d;
+        --bg-sunk: #1a1718;
+        --text: #f4efeb;
+        --text-2: #b0a7a2;
+        --line: rgba(255, 243, 228, 0.12);
+        --red: #ef5045;
+        --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 17px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--red); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; display: block; }
+    code, kbd {
+      font: 0.88em ui-monospace, "SF Mono", Menlo, monospace;
+      background: var(--bg-sunk);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.1em 0.4em;
+    }
+    .wrap { width: min(1080px, 100% - 32px); margin-inline: auto; }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: saturate(180%) blur(16px);
+      -webkit-backdrop-filter: saturate(180%) blur(16px);
+      background: color-mix(in srgb, var(--bg) 78%, transparent);
+      border-bottom: 1px solid var(--line);
+    }
+    nav .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text); font-size: 18px; }
+    .brand:hover { text-decoration: none; }
+    .brand img { width: 30px; height: 30px; }
+    nav .links { margin-left: auto; display: flex; gap: 22px; font-size: 15px; }
+    nav .links a { color: var(--text-2); }
+    nav .links a:hover { color: var(--text); text-decoration: none; }
+    @media (max-width: 560px) { nav .links a:not(.gh) { display: none; } }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 22px; border-radius: 999px;
+      font-weight: 600; font-size: 16px; line-height: 1;
+      border: 1px solid transparent;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .btn:hover { text-decoration: none; transform: translateY(-1px); }
+    .btn svg { width: 18px; height: 18px; flex: none; }
+    .btn-primary { background: var(--red); color: #fff; box-shadow: 0 8px 24px color-mix(in srgb, var(--red) 35%, transparent); }
+    .btn-primary:hover { background: var(--red-deep); }
+    .btn-ghost { color: var(--text); border-color: var(--line); background: var(--bg-elev); }
+
+    /* Hero */
+    .hero { padding: 72px 0 40px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before {
+      content: ""; position: absolute; inset: -40% -10% auto; height: 720px; z-index: -1;
+      background: radial-gradient(closest-side, color-mix(in srgb, var(--red) 18%, transparent), transparent);
+    }
+    .hero-icon { width: 176px; height: 176px; margin: 0 auto 28px; animation: bob 5s ease-in-out infinite; filter: drop-shadow(0 18px 30px rgba(181,29,31,.28)); }
+    @keyframes bob { 50% { transform: translateY(-8px) rotate(-1.5deg); } }
+    @media (prefers-reduced-motion: reduce) { .hero-icon { animation: none; } }
+    h1 { font-size: clamp(40px, 7vw, 72px); line-height: 1.04; letter-spacing: -0.035em; margin: 0 0 18px; }
+    h1 em { font-style: normal; color: var(--red); }
+    .lede { font-size: clamp(18px, 2.4vw, 22px); color: var(--text-2); max-width: 640px; margin: 0 auto 32px; }
+    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .fine { margin-top: 18px; font-size: 14px; color: var(--text-2); }
+
+    /* Definition */
+    .define {
+      margin: 56px auto 0; max-width: 560px; text-align: left;
+      background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px 26px; box-shadow: var(--shadow);
+      display: grid; grid-template-columns: auto 1fr; gap: 4px 18px; align-items: baseline;
+    }
+    .define .word { font: 700 30px/1 Georgia, "Times New Roman", serif; grid-row: span 2; }
+    .define .meta { color: var(--text-2); font-size: 14px; font-style: italic; }
+    .define .mean { font-size: 16px; }
+
+    /* Sections */
+    section { padding: 72px 0; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: 13px; font-weight: 700; color: var(--red); margin: 0 0 10px; }
+    h2 { font-size: clamp(30px, 4.4vw, 44px); letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 14px; }
+    .section-lede { color: var(--text-2); font-size: 19px; max-width: 620px; margin: 0 0 40px; }
+    .center { text-align: center; }
+    .center .section-lede { margin-inline: auto; }
+
+    .demo { display: flex; justify-content: center; }
+    .demo img { width: 100%; max-width: 760px; border-radius: 22px; box-shadow: var(--shadow); }
+
+    /* Steps */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 860px) { .steps { grid-template-columns: 1fr; } }
+    .step { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+    .step .num {
+      width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+      background: var(--red); color: #fff; font-weight: 700; font-size: 15px; margin-bottom: 14px;
+    }
+    .step h3 { margin: 0 0 6px; font-size: 20px; }
+    .step p { margin: 0; color: var(--text-2); font-size: 16px; }
+    .mock { margin-top: 20px; background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: 14px; }
+    .mock-title { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 10px; }
+    .mock-drop {
+      border: 1.5px dashed color-mix(in srgb, var(--red) 70%, transparent);
+      background: color-mix(in srgb, var(--red) 7%, transparent);
+      border-radius: 9px; padding: 9px; display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 5px; border-radius: 999px; background: var(--bg-elev); border: 1px solid var(--line); font-size: 13px; }
+    .chip i { width: 16px; height: 16px; border-radius: 4px; display: inline-block; }
+    .menu-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: 13.5px; }
+    .menu-row.hl { background: var(--red); color: #fff; font-weight: 500; }
+    .menu-row.dim { color: var(--text-2); }
+    .menu-row i { width: 16px; height: 16px; border-radius: 4px; display: inline-block; flex: none; }
+    .term { font: 12.5px/1.6 ui-monospace, "SF Mono", Menlo, monospace; background: #1d1b1c; color: #e8e2dc; border-radius: 9px; padding: 10px 12px; }
+    .term b { color: #6fe07c; font-weight: 500; }
+
+    /* Features */
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    @media (max-width: 860px) { .features { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .features { grid-template-columns: 1fr; } }
+    .feature { padding: 22px; border-radius: var(--radius); background: var(--bg-elev); border: 1px solid var(--line); }
+    .feature .ico { font-size: 26px; line-height: 1; margin-bottom: 12px; }
+    .feature h3 { margin: 0 0 6px; font-size: 18px; }
+    .feature p { margin: 0; color: var(--text-2); font-size: 15.5px; }
+
+    /* Install */
+    .install { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: start; }
+    @media (max-width: 860px) { .install { grid-template-columns: 1fr; } }
+    ol.big { counter-reset: s; list-style: none; padding: 0; margin: 0 0 24px; }
+    ol.big li { counter-increment: s; position: relative; padding: 0 0 18px 48px; }
+    ol.big li::before {
+      content: counter(s); position: absolute; left: 0; top: -2px;
+      width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+      background: var(--cream); color: var(--brown); font-weight: 700; border: 1px solid var(--line);
+    }
+    .note { background: var(--bg-sunk); border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 12px; padding: 14px 16px; font-size: 15px; color: var(--text-2); }
+    .note strong { color: var(--text); }
+    details { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 14px; padding: 4px 18px; margin-bottom: 10px; }
+    summary { cursor: pointer; font-weight: 600; padding: 12px 0; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; color: var(--red); font-size: 20px; line-height: 1; }
+    details[open] summary::after { content: "–"; }
+    details p { margin: 0 0 14px; color: var(--text-2); font-size: 15.5px; }
+
+    /* Final CTA + footer */
+    .final { text-align: center; padding: 80px 0; }
+    .final img { width: 96px; height: 96px; margin: 0 auto 20px; }
+    footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--text-2); font-size: 14px; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; }
+    footer a { color: var(--text-2); }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="#"><img src="assets/favicon.png" alt="">OpenAbi</a>
+      <div class="links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#install">Install</a>
+        <a class="gh" href="https://github.com/firatmelih/OpenAbi">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <img class="hero-icon" src="assets/icon.png" width="176" height="176" alt="OpenAbi icon: a friendly folder with a big mustache looking after a little document">
+      <h1>Your files'<br><em>big brother.</em></h1>
+      <p class="lede">OpenAbi puts your favorite apps right in Finder's right‑click menu. Drag an app onto a file type, and you're done.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/firatmelih/OpenAbi/releases/latest/download/OpenAbi.dmg">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.66zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.66 1.37-.58.67-1.1 1.76-.96 2.8 1.01.08 2.05-.52 2.68-1.28z"/></svg>
+          Download for Mac
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/firatmelih/OpenAbi">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+      <p class="fine">Free &amp; open source · macOS 14 Sonoma or later · Apple Silicon &amp; Intel</p>
+
+      <div class="define" role="note">
+        <span class="word">abi</span>
+        <span class="meta">/ah‑bee/ · noun · Turkish</span>
+        <span class="mean">Big brother. The one who always knows what to do with your stuff.</span>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="wrap center">
+      <p class="eyebrow">One right‑click away</p>
+      <h2>No more “Open With ▸ Other…”</h2>
+      <p class="section-lede">Your editor, terminal and tools show up right where you already are: on the folder or file you're pointing at.</p>
+      <div class="demo"><img src="assets/context-menu.svg" width="760" height="496" alt="Finder context menu on a folder showing 'Visual Studio Code — OpenAbi', 'Terminal — OpenAbi' and 'Cursor — OpenAbi'"></div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <p class="eyebrow">How it works</p>
+      <h2>Set it up once. Abi remembers.</h2>
+      <p class="section-lede">Three steps, about ten seconds.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Drop an app</h3>
+          <p>Drag any app from Finder onto <b>Folders</b>, <b>All Files</b>, or a type like <code>.md</code>.</p>
+          <div class="mock" aria-hidden="true">
+            <div class="mock-title">📁 Folders</div>
+            <div class="mock-drop">
+              <span class="chip"><i style="background:#2f80ed"></i>Visual Studio Code</span>
+              <span class="chip"><i style="background:#2c2c2e"></i>Terminal</span>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>Right‑click in Finder</h3>
+          <p>On a folder, a file, a selection, or the empty background of a window.</p>
+          <div class="mock" aria-hidden="true">
+            <div class="menu-row dim">Get Info</div>
+            <div class="menu-row hl"><i style="background:#2f80ed"></i>Visual Studio Code — OpenAbi</div>
+            <div class="menu-row"><i style="background:#2c2c2e"></i>Terminal — OpenAbi</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <h3>It just opens</h3>
+          <p>OpenAbi opens the folder with your app, exactly like you double‑clicked it there.</p>
+          <div class="mock" aria-hidden="true">
+            <div class="term"><b>~/my-project</b> ❯ code .<br><span style="opacity:.6">…without ever typing it.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <p class="eyebrow">Features</p>
+      <h2>Small app. Big brother energy.</h2>
+      <p class="section-lede">Does one thing, and does it well.</p>
+      <div class="features">
+        <div class="feature"><div class="ico">🫳</div><h3>Drag &amp; drop setup</h3><p>Drop any <code>.app</code> onto a type card, or pick from a list with <b>+</b>.</p></div>
+        <div class="feature"><div class="ico">🎯</div><h3>Per‑file‑type rules</h3><p>Folders, all files, or exact extensions like <code>.json</code>, <code>.md</code> or <code>.xcodeproj</code>.</p></div>
+        <div class="feature"><div class="ico">🧠</div><h3>Smart matching</h3><p>Apps for a specific file type come first. With several items selected, you only see apps that fit all of them.</p></div>
+        <div class="feature"><div class="ico">🪶</div><h3>Native &amp; tiny</h3><p>SwiftUI plus a Finder Sync extension. Nothing to keep running.</p></div>
+        <div class="feature"><div class="ico">🔒</div><h3>Private by design</h3><p>No network access, no accounts, no telemetry. Your rules never leave your Mac.</p></div>
+        <div class="feature"><div class="ico">💻</div><h3>Universal</h3><p>Runs natively on Apple Silicon and Intel Macs, macOS 14 and later.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap install">
+      <div>
+        <p class="eyebrow">Install</p>
+        <h2>Up and running in a minute</h2>
+        <ol class="big">
+          <li><a href="https://github.com/firatmelih/OpenAbi/releases/latest/download/OpenAbi.dmg"><b>Download OpenAbi.dmg</b></a>.</li>
+          <li>Open it and drag <b>OpenAbi</b> into <b>Applications</b>.</li>
+          <li>Launch it once. It turns on its Finder extension for you; look for the green dot.</li>
+          <li>Drop your apps in, then right‑click something in Finder. 🎉</li>
+        </ol>
+        <div class="note"><strong>“Can't verify the developer”?</strong> Open <b>System Settings → Privacy &amp; Security</b>, scroll down, and click <b>Open Anyway</b>. You only need to do this once.</div>
+      </div>
+      <div>
+        <details open>
+          <summary>The menu items don't show up</summary>
+          <p>Make sure the extension is on: click <b>Enable in System Settings…</b> in OpenAbi, or go to <b>System Settings → General → Login Items &amp; Extensions → Finder</b> and turn on OpenAbi. Keep a single copy of the app in Applications. If needed, hold <kbd>⌥</kbd>, right‑click Finder in the Dock, and choose <b>Relaunch</b>.</p>
+        </details>
+        <details>
+          <summary>Does OpenAbi need to stay open?</summary>
+          <p>No. Finder loads the extension by itself. Open the app only when you want to change your rules; changes apply immediately.</p>
+        </details>
+        <details>
+          <summary>Can I open several items at once?</summary>
+          <p>Yes. Select several files or folders and right‑click. OpenAbi shows the apps that match every selected item and opens them all together.</p>
+        </details>
+        <details>
+          <summary>Why “OpenAbi”?</summary>
+          <p>In Turkish, <i>abi</i> is what you call your big brother, or any older guy who helps you out. Our abi has a proud mustache and always knows which app your files should open in.</p>
+        </details>
+        <details>
+          <summary>How do I uninstall it?</summary>
+          <p>Quit OpenAbi and move it to the Trash. The <a href="https://github.com/firatmelih/OpenAbi#uninstall">README</a> lists the two small folders it leaves behind, if you want a perfectly clean slate.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <img src="assets/icon.png" width="96" height="96" alt="">
+      <h2>Let abi handle it.</h2>
+      <p class="section-lede" style="margin-inline:auto">Free, open source, and made with çay ☕ in Türkiye.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/firatmelih/OpenAbi/releases/latest/download/OpenAbi.dmg">Download for Mac</a>
+        <a class="btn btn-ghost" href="https://github.com/firatmelih/OpenAbi">Star on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Melih Firat · <a href="https://github.com/firatmelih/OpenAbi/blob/main/LICENSE">MIT License</a></span>
+      <span><a href="https://github.com/firatmelih/OpenAbi">Source</a> · <a href="https://github.com/firatmelih/OpenAbi/releases">Releases</a> · <a href="https://github.com/firatmelih/OpenAbi/issues">Issues</a></span>
+    </div>
+  </footer>
+</body>
+</html>
