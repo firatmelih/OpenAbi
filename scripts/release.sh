@@ -1,5 +1,9 @@
 #!/bin/bash
-# Builds a Developer ID signed, universal OpenAbi.dmg in ./dist.
+# Builds a Developer ID signed, universal OpenAbi.dmg in ./dist and, when notarized,
+# signs it for Sparkle and writes docs/appcast.xml (the update feed served by GitHub Pages).
+#
+# Before each release bump MARKETING_VERSION and CURRENT_PROJECT_VERSION (Sparkle compares the
+# build number), and add docs/release-notes/<version>.html.
 #
 #   scripts/release.sh                 # sign only
 #   NOTARY_PROFILE=OpenAbi scripts/release.sh   # sign + notarize + staple
@@ -13,7 +17,12 @@ ROOT="$PWD"
 BUILD="$ROOT/build/release"
 DIST="$ROOT/dist"
 IDENTITY="${SIGN_IDENTITY:-Developer ID Application}"
-VERSION="$(xcodebuild -project OpenAbi.xcodeproj -target OpenAbi -configuration Release -showBuildSettings 2>/dev/null | awk '/ MARKETING_VERSION = / { print $3 }')"
+SETTINGS="$(xcodebuild -project OpenAbi.xcodeproj -target OpenAbi -configuration Release -showBuildSettings 2>/dev/null)"
+VERSION="$(awk '/ MARKETING_VERSION = / { print $3 }' <<<"$SETTINGS")"
+BUILD_NUMBER="$(awk '/ CURRENT_PROJECT_VERSION = / { print $3 }' <<<"$SETTINGS")"
+SPARKLE_BIN="$BUILD/SourcePackages/artifacts/sparkle/Sparkle/bin"
+REPO_URL="https://github.com/firatmelih/OpenAbi"
+PAGES_URL="https://firatmelih.github.io/OpenAbi"
 
 echo "==> Building OpenAbi $VERSION"
 rm -rf "$BUILD" "$DIST"
@@ -25,6 +34,17 @@ xcodebuild -project OpenAbi.xcodeproj -scheme OpenAbi -configuration Release \
     build | grep -E "error|warning: |BUILD" || true
 
 APP="$BUILD/Build/Products/Release/OpenAbi.app"
+
+# Sparkle's helpers must carry our Developer ID, hardened runtime and a timestamp to pass notarization.
+echo "==> Re-signing Sparkle"
+SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
+sign() { codesign --force --sign "$IDENTITY" --options runtime --timestamp "$@"; }
+sign "$SPARKLE/Versions/B/XPCServices/Installer.xpc"
+sign --preserve-metadata=entitlements "$SPARKLE/Versions/B/XPCServices/Downloader.xpc"
+sign "$SPARKLE/Versions/B/Autoupdate"
+sign "$SPARKLE/Versions/B/Updater.app"
+sign "$SPARKLE"
+sign --entitlements Config/OpenAbi.entitlements "$APP"
 codesign --verify --deep --strict --verbose=2 "$APP"
 
 notarize() {
@@ -55,8 +75,31 @@ if [[ -n "${NOTARY_PROFILE:-}" ]]; then
     notarize "$DMG"
     xcrun stapler staple "$DMG"
     spctl --assess --type open --context context:primary-signature --verbose "$DMG"
+
+    echo "==> Writing docs/appcast.xml"
+    ENCLOSURE_SIGNATURE="$("$SPARKLE_BIN/sign_update" --account OpenAbi "$DMG")"
+    cat > docs/appcast.xml <<APPCAST
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>OpenAbi</title>
+    <link>$PAGES_URL/appcast.xml</link>
+    <item>
+      <title>OpenAbi $VERSION</title>
+      <pubDate>$(LC_ALL=C date -u "+%a, %d %b %Y %H:%M:%S +0000")</pubDate>
+      <sparkle:version>$BUILD_NUMBER</sparkle:version>
+      <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:releaseNotesLink>$PAGES_URL/release-notes/$VERSION.html</sparkle:releaseNotesLink>
+      <enclosure url="$REPO_URL/releases/download/v$VERSION/OpenAbi.dmg" type="application/octet-stream" $ENCLOSURE_SIGNATURE />
+    </item>
+  </channel>
+</rss>
+APPCAST
+    [[ -f "docs/release-notes/$VERSION.html" ]] || echo "!! Missing docs/release-notes/$VERSION.html"
+    echo "==> Next: gh release create v$VERSION dist/OpenAbi.dmg, then commit and push docs/appcast.xml"
 else
-    echo "==> Skipping notarization (set NOTARY_PROFILE to enable)"
+    echo "==> Skipping notarization and appcast (set NOTARY_PROFILE to enable)"
 fi
 
 shasum -a 256 "$DMG"

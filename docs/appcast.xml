@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>OpenAbi</title>
+    <link>https://firatmelih.github.io/OpenAbi/appcast.xml</link>
+    <item>
+      <title>OpenAbi 1.1.0</title>
+      <pubDate>Fri, 02 Oct 2026 16:07:11 +0000</pubDate>
+      <sparkle:version>2</sparkle:version>
+      <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:releaseNotesLink>https://firatmelih.github.io/OpenAbi/release-notes/1.1.0.html</sparkle:releaseNotesLink>
+      <enclosure url="https://github.com/firatmelih/OpenAbi/releases/download/v1.1.0/OpenAbi.dmg" type="application/octet-stream" sparkle:edSignature="eToFauMOx+k5UwLbutyxbbrWn/4KWyZzkaBqt8r52NRR8rS6k/pznNw2LngoKU3RzMRmh8rLY2fOf9guk9jvBg==" length="3562621" />
+    </item>
+  </channel>
+</rss>

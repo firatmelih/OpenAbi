@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Sparkle: updates are announced in docs/appcast.xml (GitHub Pages) and signed with the EdDSA key below. -->
+	<key>SUFeedURL</key>
+	<string>https://firatmelih.github.io/OpenAbi/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>ELVKh/tP4QyVWrcNjOvKYYLzqPjlNVA+b7BHbq1vWbc=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<!-- openabi://check-for-updates, used by the Finder extension's "Update OpenAbi…" item. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.melihfirat.OpenAbi</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>openabi</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

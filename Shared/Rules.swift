@@ -4,6 +4,8 @@ enum OpenAbiShared {
     /// Team-prefixed (macOS-style) app group shared by the app and the Finder extension.
     static let appGroup = "XQH36L7379.com.melihfirat.OpenAbi"
     static let extensionBundleID = "com.melihfirat.OpenAbi.FinderExtension"
+    /// Sparkle feed, also set as SUFeedURL in Config/OpenAbi-Info.plist.
+    static let appcastURL = URL(string: "https://firatmelih.github.io/OpenAbi/appcast.xml")!
 
     /// The sandboxed extension can't make another app open arbitrary files, but scripts in its
     /// Application Scripts folder run unsandboxed. The app installs this one; the extension runs it.
@@ -25,6 +27,11 @@ struct LinkedApp: Codable, Hashable, Identifiable {
 
     var id: String { path }
     var url: URL { URL(fileURLWithPath: path) }
+
+    /// Finder menu title: "Open in Visual Studio Code", or just the name inside the OpenAbi submenu.
+    func menuTitle(inSubmenu: Bool) -> String {
+        inSubmenu ? name : "Open in \(name)"
+    }
 }
 
 /// What kind of Finder item a rule applies to.
@@ -66,8 +73,22 @@ struct Rule: Codable, Hashable, Identifiable {
 
 struct Configuration: Codable {
     var rules: [Rule]
+    /// Shows the apps under a single "OpenAbi" submenu instead of directly in the context menu.
+    var groupInSubmenu = false
 
     static let `default` = Configuration(rules: [Rule(target: .folders), Rule(target: .allFiles)])
+
+    init(rules: [Rule], groupInSubmenu: Bool = false) {
+        self.rules = rules
+        self.groupInSubmenu = groupInSubmenu
+    }
+
+    // Tolerates rules files written by older versions, which lack newer keys.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        rules = try container.decode([Rule].self, forKey: .rules)
+        groupInSubmenu = try container.decodeIfPresent(Bool.self, forKey: .groupInSubmenu) ?? false
+    }
 
     /// Apps that can open every one of `urls`, most specific first, without duplicates.
     func apps(for urls: [URL]) -> [LinkedApp] {

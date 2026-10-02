@@ -1,7 +1,7 @@
 import Cocoa
 import FinderSync
 
-/// Adds "<App> — OpenAbi" items to Finder's context menu based on the rules set up in the app.
+/// Adds "Open in <App>" items to Finder's context menu and toolbar button based on the rules set up in the app.
 class FinderSync: FIFinderSync {
     // Finder copies menu items and drops representedObject, so items carry an index (tag) into these.
     private var menuApps: [LinkedApp] = []
@@ -28,34 +28,96 @@ class FinderSync: FIFinderSync {
         FIFinderSyncController.default().directoryURLs = urls
     }
 
+    // MARK: - Toolbar button (Finder ▸ View ▸ Customize Toolbar…)
+
+    override var toolbarItemName: String { "OpenAbi" }
+
+    override var toolbarItemToolTip: String { "Open the selection, or this folder, in one of your apps" }
+
+    override var toolbarItemImage: NSImage {
+        NSImage(systemSymbolName: "mustache", accessibilityDescription: "OpenAbi") ?? NSImage()
+    }
+
     // MARK: - Menu
 
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
+        UpdateCheck.checkIfDue()
         let controller = FIFinderSyncController.default()
-        let targets: [URL]
+        let selection = controller.selectedItemURLs() ?? []
+        let folder = controller.targetedURL().map { [$0] } ?? []
+
         switch menuKind {
         case .contextualMenuForItems:
-            targets = controller.selectedItemURLs() ?? []
+            return contextMenu(for: selection)
         case .contextualMenuForContainer:
-            targets = controller.targetedURL().map { [$0] } ?? []
+            return contextMenu(for: folder)
+        case .toolbarItemMenu:
+            return toolbarMenu(for: selection.isEmpty ? folder : selection)
         default:
             return nil
         }
+    }
 
-        let apps = ConfigurationStore.load().apps(for: targets)
-        guard !apps.isEmpty else { return nil }
+    private func contextMenu(for targets: [URL]) -> NSMenu? {
+        let config = ConfigurationStore.load()
+        let items = appItems(for: targets, config: config)
+        guard !items.isEmpty else { return nil }
+
+        let menu = NSMenu(title: "")
+        if config.groupInSubmenu {
+            let submenu = NSMenu(title: "OpenAbi")
+            items.forEach(submenu.addItem)
+            let parent = NSMenuItem(title: "OpenAbi", action: nil, keyEquivalent: "")
+            parent.image = NSImage(systemSymbolName: "mustache", accessibilityDescription: nil)
+            parent.submenu = submenu
+            menu.addItem(parent)
+        } else {
+            items.forEach(menu.addItem)
+        }
+        addUpdateItem(to: menu)
+        return menu
+    }
+
+    /// The toolbar button always shows a menu, so it can point people to the app when nothing matches.
+    private func toolbarMenu(for targets: [URL]) -> NSMenu {
+        let config = ConfigurationStore.load()
+        let menu = NSMenu(title: "")
+        let items = appItems(for: targets, config: config, inSubmenu: false)
+        if items.isEmpty {
+            let empty = NSMenuItem(title: "No apps for this selection", action: nil, keyEquivalent: "")
+            empty.isEnabled = false
+            menu.addItem(empty)
+        } else {
+            items.forEach(menu.addItem)
+        }
+        menu.addItem(.separator())
+        menu.addItem(NSMenuItem(title: "OpenAbi Settings…", action: #selector(openSettings(_:)), keyEquivalent: ""))
+        addUpdateItem(to: menu)
+        return menu
+    }
+
+    private func addUpdateItem(to menu: NSMenu) {
+        guard let version = UpdateCheck.availableVersion else { return }
+        let item = NSMenuItem(title: "Update OpenAbi to \(version)…", action: #selector(installUpdate(_:)), keyEquivalent: "")
+        item.image = NSImage(systemSymbolName: "arrow.down.circle", accessibilityDescription: nil)
+        menu.addItem(item)
+    }
+
+    private func appItems(for targets: [URL], config: Configuration, inSubmenu: Bool? = nil) -> [NSMenuItem] {
+        let apps = config.apps(for: targets)
         menuApps = apps
         menuTargets = targets
 
-        let menu = NSMenu(title: "")
-        for (index, app) in apps.enumerated() {
-            let item = NSMenuItem(title: "\(app.name) — OpenAbi", action: #selector(openWithApp(_:)), keyEquivalent: "")
+        let inSubmenu = inSubmenu ?? config.groupInSubmenu
+        return apps.enumerated().map { index, app in
+            let item = NSMenuItem(title: app.menuTitle(inSubmenu: inSubmenu), action: #selector(openWithApp(_:)), keyEquivalent: "")
             item.tag = index
             item.image = icon(for: app)
-            menu.addItem(item)
+            return item
         }
-        return menu
     }
+
+    // MARK: - Actions
 
     @objc private func openWithApp(_ sender: NSMenuItem) {
         guard menuApps.indices.contains(sender.tag), !menuTargets.isEmpty else { return }
@@ -74,6 +136,16 @@ class FinderSync: FIFinderSync {
         } catch {
             NSLog("OpenAbi: open script unavailable (launch OpenAbi once to install it): %@", error.localizedDescription)
         }
+    }
+
+    @objc private func openSettings(_ sender: NSMenuItem) {
+        // FinderExtension.appex lives in OpenAbi.app/Contents/PlugIns.
+        let appURL = Bundle.main.bundleURL.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        NSWorkspace.shared.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration())
+    }
+
+    @objc private func installUpdate(_ sender: NSMenuItem) {
+        NSWorkspace.shared.open(UpdateCheck.checkForUpdatesURL)
     }
 
     private func icon(for app: LinkedApp) -> NSImage {

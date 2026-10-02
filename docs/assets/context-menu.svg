@@ -60,15 +60,15 @@
     <rect class="hl" x="244" y="306" width="300" height="28" rx="6"/>
     <rect x="256" y="311" width="18" height="18" rx="4.5" fill="#2f80ed" stroke="#fff" stroke-opacity="0.6"/>
     <text x="265" y="324" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Menlo, monospace">&lt;/&gt;</text>
-    <text class="hl-text" x="284" y="325">Visual Studio Code — OpenAbi</text>
+    <text class="hl-text" x="284" y="325">Open in Visual Studio Code</text>
 
     <rect x="256" y="341" width="18" height="18" rx="4.5" fill="#2c2c2e"/>
     <text x="265" y="354" text-anchor="middle" font-size="9" font-weight="700" fill="#5ef06e" font-family="Menlo, monospace">&gt;_</text>
-    <text class="item" x="284" y="355">Terminal — OpenAbi</text>
+    <text class="item" x="284" y="355">Open in Terminal</text>
 
     <rect x="256" y="371" width="18" height="18" rx="4.5" fill="#7d5bf0"/>
     <text x="265" y="384" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">✦</text>
-    <text class="item" x="284" y="385">Cursor — OpenAbi</text>
+    <text class="item" x="284" y="385">Open in Cursor</text>
 
     <line class="sep" x1="250" y1="400" x2="538" y2="400"/>
     <text class="item" x="258" y="424">Services</text>

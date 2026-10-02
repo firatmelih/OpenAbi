@@ -8,6 +8,9 @@
 	<array>
 		<string>XQH36L7379.com.melihfirat.OpenAbi</string>
 	</array>
+	<!-- Once-a-day check of the update feed (appcast.xml). -->
+	<key>com.apple.security.network.client</key>
+	<true/>
 	<!-- Lets the sandboxed extension hand any selected file/folder to another app and read app icons. -->
 	<key>com.apple.security.temporary-exception.files.absolute-path.read-only</key>
 	<array>

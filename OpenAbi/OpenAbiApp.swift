@@ -10,13 +10,20 @@ struct OpenAbiApp: App {
             ContentView()
                 .environment(store)
                 .frame(minWidth: 560, minHeight: 520)
+                .onOpenURL { Updater.shared.handle($0) }
         }
         .windowToolbarStyle(.unifiedCompact)
+        .commands {
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") { Updater.shared.checkForUpdates() }
+            }
+        }
     }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        _ = Updater.shared
         FinderExtensionSetup.enableOnFirstLaunch()
     }
 

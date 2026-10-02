@@ -5,10 +5,13 @@ import UniformTypeIdentifiers
 @Observable
 final class RuleStore {
     private(set) var configuration: Configuration
+    /// Installed preset editors/terminals that aren't on the Folders card yet.
+    private(set) var folderSuggestions: [LinkedApp] = []
     var errorMessage: String?
 
     init() {
         configuration = ConfigurationStore.load()
+        refreshSuggestions()
         do {
             try ScriptInstaller.install()
         } catch {
@@ -18,10 +21,30 @@ final class RuleStore {
 
     var rules: [Rule] { configuration.rules }
 
+    var groupInSubmenu: Bool {
+        get { configuration.groupInSubmenu }
+        set {
+            configuration.groupInSubmenu = newValue
+            save()
+        }
+    }
+
+    func addToFolders(_ apps: [LinkedApp]) {
+        if !configuration.rules.contains(where: { $0.target == .folders }) {
+            configuration.rules.insert(Rule(target: .folders), at: 0)
+        }
+        guard let ruleID = configuration.rules.first(where: { $0.target == .folders })?.id else { return }
+        update(ruleID) { rule in
+            for app in apps where !rule.apps.contains(where: { $0.path == app.path }) {
+                rule.apps.append(app)
+            }
+        }
+    }
+
     /// Adds every application among `urls` to the rule. Returns false if none were apps.
     @discardableResult
     func addApps(at urls: [URL], to ruleID: Rule.ID) -> Bool {
-        let apps = urls.compactMap(Self.linkedApp(at:))
+        let apps = urls.compactMap(LinkedApp.init(appURL:))
         guard !apps.isEmpty else { return false }
         update(ruleID) { rule in
             for app in apps where !rule.apps.contains(where: { $0.path == app.path }) {
@@ -74,6 +97,7 @@ final class RuleStore {
     }
 
     private func save() {
+        refreshSuggestions()
         do {
             try ConfigurationStore.save(configuration)
             errorMessage = nil
@@ -82,12 +106,20 @@ final class RuleStore {
         }
     }
 
-    private static func linkedApp(at url: URL) -> LinkedApp? {
+    private func refreshSuggestions() {
+        let added = Set(configuration.rules.filter { $0.target == .folders }.flatMap(\.apps).map(\.path))
+        folderSuggestions = Presets.installedFolderApps().filter { !added.contains($0.path) }
+    }
+}
+
+extension LinkedApp {
+    /// Nil unless `appURL` is an application bundle.
+    init?(appURL url: URL) {
         guard let type = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType,
               type.conforms(to: .application)
         else { return nil }
         var name = FileManager.default.displayName(atPath: url.path)
         if name.hasSuffix(".app") { name = String(name.dropLast(4)) }
-        return LinkedApp(path: url.path, name: name)
+        self.init(path: url.path, name: name)
     }
 }

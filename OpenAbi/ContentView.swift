@@ -16,11 +16,19 @@ struct ContentView: View {
                         .font(.callout)
                         .foregroundStyle(.secondary)
 
+                    if !store.folderSuggestions.isEmpty {
+                        QuickSetupCard()
+                    }
+
                     ForEach(store.rules) { rule in
                         RuleCard(rule: rule)
                     }
 
                     addTypeRow
+
+                    Divider().padding(.vertical, 6)
+
+                    FinderMenuSettings()
                 }
                 .padding(20)
             }
@@ -53,6 +61,85 @@ struct ContentView: View {
     private func addExtensions() {
         store.addFileExtensions(newExtensions)
         newExtensions = ""
+    }
+}
+
+// MARK: - Quick setup
+
+private struct QuickSetupCard: View {
+    @Environment(RuleStore.self) private var store
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: "sparkles")
+                    .font(.title3)
+                    .foregroundStyle(.tint)
+                    .frame(width: 24)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Quick setup")
+                        .font(.headline)
+                    Text("Open folders in these apps with a right-click.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button("Add All to Folders") {
+                    store.addToFolders(store.folderSuggestions)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+
+            FlowingChips(apps: store.folderSuggestions) { app in
+                Button {
+                    store.addToFolders([app])
+                } label: {
+                    AppLabel(app: app, trailingSymbol: "plus.circle.fill")
+                }
+                .buttonStyle(.plain)
+                .help("Add \(app.name) to Folders")
+            }
+        }
+        .padding(14)
+        .background(Color.accentColor.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.accentColor.opacity(0.25)))
+    }
+}
+
+// MARK: - Finder menu settings
+
+private struct FinderMenuSettings: View {
+    @Environment(RuleStore.self) private var store
+
+    var body: some View {
+        @Bindable var store = store
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Finder Menu")
+                .font(.headline)
+
+            Toggle("Group apps in an “OpenAbi” submenu", isOn: $store.groupInSubmenu)
+
+            Text(preview)
+                .font(.callout.monospaced())
+                .foregroundStyle(.secondary)
+
+            Label {
+                Text("Add a one-click OpenAbi button to Finder's toolbar: in any Finder window, choose **View ▸ Customize Toolbar…** and drag the mustache in.")
+            } icon: {
+                Image(systemName: "mustache")
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
+        }
+    }
+
+    private var preview: String {
+        let names = store.rules.first { $0.target == .folders }?.apps.prefix(2).map(\.name) ?? []
+        let examples = names.isEmpty ? ["Visual Studio Code"] : Array(names)
+        let titles = examples.map { LinkedApp(path: "", name: $0).menuTitle(inSubmenu: store.groupInSubmenu) }
+        return store.groupInSubmenu
+            ? "OpenAbi ▸  " + titles.joined(separator: " · ")
+            : titles.joined(separator: "\n")
     }
 }
 
@@ -144,9 +231,7 @@ private struct AppChip: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Image(nsImage: NSWorkspace.shared.icon(forFile: app.path))
-                .resizable()
-                .frame(width: 22, height: 22)
+            AppIcon(app: app)
             Text(app.name)
                 .lineLimit(1)
             Button(action: onRemove) {
@@ -157,10 +242,7 @@ private struct AppChip: View {
             .opacity(isHovering ? 1 : 0.35)
             .help("Remove \(app.name)")
         }
-        .padding(.vertical, 5)
-        .padding(.horizontal, 8)
-        .background(.background, in: Capsule())
-        .overlay(Capsule().strokeBorder(.separator))
+        .chipStyle()
         .onHover { isHovering = $0 }
         .contextMenu {
             Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([app.url]) }
@@ -169,10 +251,58 @@ private struct AppChip: View {
     }
 }
 
+private struct AppLabel: View {
+    let app: LinkedApp
+    let trailingSymbol: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            AppIcon(app: app)
+            Text(app.name)
+                .lineLimit(1)
+            Image(systemName: trailingSymbol)
+                .foregroundStyle(.tint)
+        }
+        .chipStyle()
+    }
+}
+
+private struct AppIcon: View {
+    let app: LinkedApp
+
+    var body: some View {
+        Image(nsImage: NSWorkspace.shared.icon(forFile: app.path))
+            .resizable()
+            .frame(width: 22, height: 22)
+    }
+}
+
+/// Wraps chips onto multiple lines.
+private struct FlowingChips<Chip: View>: View {
+    let apps: [LinkedApp]
+    @ViewBuilder let chip: (LinkedApp) -> Chip
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 170), alignment: .leading)], alignment: .leading, spacing: 8) {
+            ForEach(apps) { chip($0) }
+        }
+    }
+}
+
+private extension View {
+    func chipStyle() -> some View {
+        padding(.vertical, 5)
+            .padding(.horizontal, 8)
+            .background(.background, in: Capsule())
+            .overlay(Capsule().strokeBorder(.separator))
+    }
+}
+
 // MARK: - Extension status
 
 private struct ExtensionStatusBar: View {
     @State private var isEnabled = FIFinderSyncController.isExtensionEnabled
+    private static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
 
     var body: some View {
         HStack(spacing: 8) {
@@ -187,6 +317,11 @@ private struct ExtensionStatusBar: View {
                     FIFinderSyncController.showExtensionManagementInterface()
                 }
             }
+            Button("v\(Self.version) · Check for Updates…") {
+                Updater.shared.checkForUpdates()
+            }
+            .buttonStyle(.link)
+            .font(.callout)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 10)

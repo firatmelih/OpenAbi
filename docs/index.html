@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OpenAbi: your files' big brother</title>
-  <meta name="description" content="OpenAbi is a free, open-source macOS app that adds your favorite apps to Finder's right-click menu. Drag an app onto a file type and you're done.">
+  <title>OpenAbi: the “Open with Code” menu your Mac never had</title>
+  <meta name="description" content="Right-click any folder in Finder and open it in VS Code, Cursor, Zed, Terminal, iTerm, Ghostty or any app. Free, open-source macOS app.">
   <meta name="theme-color" content="#d9342b">
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <meta property="og:title" content="OpenAbi: your files' big brother">
-  <meta property="og:description" content="Put your favorite apps in Finder's right-click menu. Free and open source for macOS.">
+  <meta property="og:title" content="OpenAbi: the “Open with Code” menu your Mac never had">
+  <meta property="og:description" content="Right-click any folder in Finder and open it in VS Code, Cursor, Terminal, or any app. Free and open source for macOS.">
   <meta property="og:image" content="https://firatmelih.github.io/OpenAbi/assets/icon.png">
   <meta property="og:url" content="https://firatmelih.github.io/OpenAbi/">
   <meta name="twitter:card" content="summary">
@@ -209,8 +209,8 @@
   <header class="hero">
     <div class="wrap">
       <img class="hero-icon" src="assets/icon.png" width="176" height="176" alt="OpenAbi icon: a friendly folder with a big mustache looking after a little document">
-      <h1>Your files'<br><em>big brother.</em></h1>
-      <p class="lede">OpenAbi puts your favorite apps right in Finder's right‑click menu. Drag an app onto a file type, and you're done.</p>
+      <h1>The “Open with Code” menu<br><em>your Mac never had.</em></h1>
+      <p class="lede">Right‑click any folder in Finder and open it in VS Code, Cursor, Zed, Terminal, iTerm, Ghostty, or any app you like. Set up in two seconds.</p>
       <div class="cta">
         <a class="btn btn-primary" href="https://github.com/firatmelih/OpenAbi/releases/latest/download/OpenAbi.dmg">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.66zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.66 1.37-.58.67-1.1 1.76-.96 2.8 1.01.08 2.05-.52 2.68-1.28z"/></svg>
@@ -221,7 +221,8 @@
           View on GitHub
         </a>
       </div>
-      <p class="fine">Free &amp; open source · macOS 14 Sonoma or later · Apple Silicon &amp; Intel</p>
+      <p class="fine">Free &amp; open source · Notarized by Apple · macOS 14+ · Apple Silicon &amp; Intel</p>
+      <p class="fine">or <code>brew tap firatmelih/openabi https://github.com/firatmelih/OpenAbi &amp;&amp; brew install --cask openabi</code></p>
 
       <div class="define" role="note">
         <span class="word">abi</span>
@@ -234,9 +235,9 @@
   <section>
     <div class="wrap center">
       <p class="eyebrow">One right‑click away</p>
-      <h2>No more “Open With ▸ Other…”</h2>
-      <p class="section-lede">Your editor, terminal and tools show up right where you already are: on the folder or file you're pointing at.</p>
-      <div class="demo"><img src="assets/context-menu.svg" width="760" height="496" alt="Finder context menu on a folder showing 'Visual Studio Code — OpenAbi', 'Terminal — OpenAbi' and 'Cursor — OpenAbi'"></div>
+      <h2>No more <code style="font-size:.8em">cd ~/projects/… &amp;&amp; code .</code></h2>
+      <p class="section-lede">Windows has had “Open with Code” in the right‑click menu forever. Finder's Open With doesn't even show up for folders. Abi fixed it.</p>
+      <div class="demo"><img src="assets/context-menu.svg" width="760" height="496" alt="Finder context menu on a folder showing 'Open in Visual Studio Code', 'Open in Terminal' and 'Open in Cursor', added by OpenAbi"></div>
     </div>
   </section>
 
@@ -248,10 +249,10 @@
       <div class="steps">
         <div class="step">
           <div class="num">1</div>
-          <h3>Drop an app</h3>
-          <p>Drag any app from Finder onto <b>Folders</b>, <b>All Files</b>, or a type like <code>.md</code>.</p>
+          <h3>Pick your apps</h3>
+          <p>Quick setup finds your editors and terminals. Or drag any app onto <b>Folders</b>, <b>All Files</b>, or a type like <code>.md</code>.</p>
           <div class="mock" aria-hidden="true">
-            <div class="mock-title">📁 Folders</div>
+            <div class="mock-title">✨ Quick setup <span style="margin-left:auto;font-size:12px;background:var(--red);color:#fff;padding:3px 9px;border-radius:999px">Add All to Folders</span></div>
             <div class="mock-drop">
               <span class="chip"><i style="background:#2f80ed"></i>Visual Studio Code</span>
               <span class="chip"><i style="background:#2c2c2e"></i>Terminal</span>
@@ -264,8 +265,8 @@
           <p>On a folder, a file, a selection, or the empty background of a window.</p>
           <div class="mock" aria-hidden="true">
             <div class="menu-row dim">Get Info</div>
-            <div class="menu-row hl"><i style="background:#2f80ed"></i>Visual Studio Code — OpenAbi</div>
-            <div class="menu-row"><i style="background:#2c2c2e"></i>Terminal — OpenAbi</div>
+            <div class="menu-row hl"><i style="background:#2f80ed"></i>Open in Visual Studio Code</div>
+            <div class="menu-row"><i style="background:#2c2c2e"></i>Open in Terminal</div>
           </div>
         </div>
         <div class="step">
@@ -286,12 +287,12 @@
       <h2>Small app. Big brother energy.</h2>
       <p class="section-lede">Does one thing, and does it well.</p>
       <div class="features">
-        <div class="feature"><div class="ico">🫳</div><h3>Drag &amp; drop setup</h3><p>Drop any <code>.app</code> onto a type card, or pick from a list with <b>+</b>.</p></div>
-        <div class="feature"><div class="ico">🎯</div><h3>Per‑file‑type rules</h3><p>Folders, all files, or exact extensions like <code>.json</code>, <code>.md</code> or <code>.xcodeproj</code>.</p></div>
-        <div class="feature"><div class="ico">🧠</div><h3>Smart matching</h3><p>Apps for a specific file type come first. With several items selected, you only see apps that fit all of them.</p></div>
-        <div class="feature"><div class="ico">🪶</div><h3>Native &amp; tiny</h3><p>SwiftUI plus a Finder Sync extension. Nothing to keep running.</p></div>
-        <div class="feature"><div class="ico">🔒</div><h3>Private by design</h3><p>No network access, no accounts, no telemetry. Your rules never leave your Mac.</p></div>
-        <div class="feature"><div class="ico">💻</div><h3>Universal</h3><p>Runs natively on Apple Silicon and Intel Macs, macOS 14 and later.</p></div>
+        <div class="feature"><div class="ico">⚡️</div><h3>Two‑second setup</h3><p>Finds VS Code, Cursor, Windsurf, Zed, Sublime, Nova, Terminal, iTerm, Ghostty and Warp. One click adds them all.</p></div>
+        <div class="feature"><div class="ico">🎯</div><h3>Any app, any type</h3><p>Folders, all files, or exact extensions like <code>.json</code>, <code>.md</code> or <code>.xcodeproj</code>. Drag in any <code>.app</code>.</p></div>
+        <div class="feature"><div class="ico">🥸</div><h3>Toolbar button</h3><p>Add a mustache to Finder's toolbar, then open the current folder in any of your apps in one click.</p></div>
+        <div class="feature"><div class="ico">🗂️</div><h3>Your menu, your way</h3><p>Clean “Open in …” items, or tuck them all into a single <b>OpenAbi ▸</b> submenu.</p></div>
+        <div class="feature"><div class="ico">🔄</div><h3>Updates itself</h3><p>Get notified right in Finder and update in one click. Never download it again.</p></div>
+        <div class="feature"><div class="ico">🔒</div><h3>Native &amp; private</h3><p>SwiftUI, signed and notarized by Apple. No accounts, no telemetry. Your rules never leave your Mac.</p></div>
       </div>
     </div>
   </section>
@@ -305,7 +306,7 @@
           <li><a href="https://github.com/firatmelih/OpenAbi/releases/latest/download/OpenAbi.dmg"><b>Download OpenAbi.dmg</b></a>.</li>
           <li>Open it and drag <b>OpenAbi</b> into <b>Applications</b>.</li>
           <li>Launch it once. It turns on its Finder extension for you; look for the green dot.</li>
-          <li>Drop your apps in, then right‑click something in Finder. 🎉</li>
+          <li>Click <b>Add All to Folders</b>, then right‑click a folder in Finder. 🎉</li>
         </ol>
         <div class="note"><strong>Signed &amp; notarized.</strong> OpenAbi is signed with a Developer ID and checked by Apple, so it opens like any other app. No security warnings.</div>
       </div>
@@ -317,6 +318,10 @@
         <details>
           <summary>Does OpenAbi need to stay open?</summary>
           <p>No. Finder loads the extension by itself. Open the app only when you want to change your rules; changes apply immediately.</p>
+        </details>
+        <details>
+          <summary>How do updates work?</summary>
+          <p>OpenAbi updates itself with <a href="https://sparkle-project.org">Sparkle</a>. When a new version is out, you'll see <b>Update OpenAbi…</b> in your Finder right‑click menu. One click installs it; no re‑downloading.</p>
         </details>
         <details>
           <summary>Can I open several items at once?</summary>

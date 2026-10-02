@@ -7,14 +7,14 @@
 
 # OpenAbi
 
-**Your files' big brother.**<br>
-Drag an app onto a file type, and it shows up in Finder's right‑click menu.
+**The “Open with Code” menu your Mac never had.**<br>
+Right‑click any folder in Finder → open it in VS Code, Cursor, Zed, Terminal, iTerm, Ghostty, or any app you like.
 
 [![Download for macOS](https://img.shields.io/badge/Download-macOS-d9342b?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/firatmelih/OpenAbi/releases/latest/download/OpenAbi.dmg)
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-1d1d1f?logo=apple)
 ![Apple Silicon & Intel](https://img.shields.io/badge/Apple%20Silicon%20%26%20Intel-universal-1d1d1f)
-![Swift](https://img.shields.io/badge/Swift-SwiftUI-F05138?logo=swift&logoColor=white)
+![Notarized](https://img.shields.io/badge/Apple-notarized-1d1d1f)
 [![License: MIT](https://img.shields.io/badge/License-MIT-3B2118)](LICENSE)
 
 [Website](https://firatmelih.github.io/OpenAbi/) · [Download](https://github.com/firatmelih/OpenAbi/releases/latest) · [Report a bug](https://github.com/firatmelih/OpenAbi/issues)
@@ -23,30 +23,38 @@ Drag an app onto a file type, and it shows up in Finder's right‑click menu.
 
 ---
 
+On Windows, VS Code puts **“Open with Code”** in the right‑click menu. On a Mac you get… dragging folders onto the Dock, or `cd`‑ing around to type `code .`. Finder's **Open With** menu doesn't even appear for folders.
+
+OpenAbi fixes that. Tell it once which apps belong to folders (or to `.md`, `.json`, `.xcodeproj`, anything), and they're one right‑click away forever.
+
 > **abi** */ah‑bee/* (Turkish): big brother. The one who always knows what to do with your stuff.
 
-Tired of dragging folders onto the Dock or digging through **Open With ▸ Other…** every time? Tell OpenAbi once which apps belong to which kind of file. From then on, right‑click any match in Finder and open it in one click.
-
 <p align="center">
-  <img src="docs/assets/context-menu.svg" width="680" alt="Finder context menu on a folder showing 'Visual Studio Code — OpenAbi', 'Terminal — OpenAbi' and 'Cursor — OpenAbi'">
+  <img src="docs/assets/context-menu.svg" width="680" alt="Finder context menu on a folder showing 'Open in Visual Studio Code', 'Open in Terminal' and 'Open in Cursor', added by OpenAbi">
 </p>
 
 ## Features
 
-- 🫳 **Drag and drop setup.** Drop any `.app` onto **Folders**, **All Files**, or a specific type like `.md`, `.json` or `.xcodeproj`.
-- 🖱️ **Lives in Finder.** Items appear right in the context menu, with the app's own icon.
-- 📂 **Folders and files.** Right‑click a folder, a file, several items at once, or the empty background of a Finder window.
-- 🎯 **Smart matching.** Apps you added for a specific file type come first. With several items selected, you only see apps that match all of them.
-- 🪶 **Tiny and native.** SwiftUI plus a Finder Sync extension. No Electron, no background app, no network access, no telemetry.
-- 💻 **Universal.** Runs natively on Apple Silicon and Intel Macs.
+- ⚡️ **Two‑second setup.** OpenAbi finds VS Code, Cursor, Windsurf, Zed, VSCodium, Sublime Text, Nova, Terminal, iTerm, Ghostty and Warp on your Mac. Click **Add All to Folders** and you're done.
+- 🫳 **Any app, any file type.** Drag any `.app` onto **Folders**, **All Files**, or a specific type like `.md`, `.json` or `.xcodeproj`.
+- 🖱️ **Right in Finder.** Clean **Open in Visual Studio Code** items with app icons. Works on folders, files, multiple selections, and the empty background of a window.
+- 🥸 **Toolbar button.** An optional mustache button in Finder's toolbar opens the current folder in your apps.
+- 🗂️ **Your menu, your way.** Show items directly, or tuck them into a single **OpenAbi ▸** submenu.
+- 🔄 **Updates itself.** OpenAbi tells you when a new version is out and installs it in one click, so you never need to download it again.
+- 🪶 **Tiny, native, private.** SwiftUI plus a Finder Sync extension. Signed and notarized by Apple. No accounts, no telemetry.
 
 ## Install
 
-1. **[Download OpenAbi.dmg](https://github.com/firatmelih/OpenAbi/releases/latest/download/OpenAbi.dmg)**.
-2. Open it and drag **OpenAbi** into **Applications**.
-3. Launch OpenAbi once. It turns on its Finder extension for you; the green dot at the top of the window confirms it.
+**Download:** grab **[OpenAbi.dmg](https://github.com/firatmelih/OpenAbi/releases/latest/download/OpenAbi.dmg)**, open it, drag **OpenAbi** into **Applications**, and launch it once.
 
-OpenAbi is signed with a Developer ID and notarized by Apple, so it opens like any other app.
+**Homebrew:**
+
+```bash
+brew tap firatmelih/openabi https://github.com/firatmelih/OpenAbi
+brew install --cask openabi
+```
+
+On first launch, OpenAbi turns on its Finder extension for you; the green dot at the top of the window confirms it. Then click **Add All to Folders** in Quick setup, or drag in your own apps.
 
 <details>
 <summary><b>The menu items don't show up?</b></summary>
@@ -59,26 +67,37 @@ OpenAbi is signed with a Developer ID and notarized by Apple, so it opens like a
 
 ## Use
 
-| You drop… | onto… | Right‑click in Finder shows |
+| You add… | to… | Right‑click in Finder shows |
 | --- | --- | --- |
-| Visual Studio Code | **Folders** | `Visual Studio Code — OpenAbi` on every folder |
-| Terminal | **Folders** | `Terminal — OpenAbi` (opens a shell right there) |
-| Typora | **.md** | `Typora — OpenAbi` on Markdown files |
-| Xcode | **.xcodeproj** | `Xcode — OpenAbi` on project bundles |
-| TextEdit | **All Files** | `TextEdit — OpenAbi` on any file |
+| Visual Studio Code | **Folders** | `Open in Visual Studio Code` on every folder |
+| Terminal / iTerm / Ghostty | **Folders** | `Open in Terminal`, which opens a shell right there |
+| Typora | **.md** | `Open in Typora` on Markdown files |
+| Xcode | **.xcodeproj** | `Open in Xcode` on project bundles |
+| TextEdit | **All Files** | `Open in TextEdit` on any file |
 
-- **Add a file type:** type extensions into the field at the bottom (`md, json, yml`) and press <kbd>Return</kbd>.
+- **Add a file type:** type extensions into the field (`md, json, yml`) and press <kbd>Return</kbd>.
 - **Remove an app:** click the ⓧ on its chip, or right‑click the chip → **Remove**.
-- **Pick from a list:** click **+** on a card to choose apps with an Open panel instead of dragging.
+- **Toolbar button:** in any Finder window, choose **View ▸ Customize Toolbar…** and drag the 🥸 **OpenAbi** button into the toolbar.
+- **Submenu:** turn on **Group apps in an “OpenAbi” submenu** at the bottom of the window.
 
 You don't need to keep OpenAbi running. Finder loads the extension by itself, and changes apply immediately.
 
+## Updates
+
+OpenAbi uses [Sparkle](https://sparkle-project.org), the standard updater for Mac apps:
+
+- The app checks for updates automatically, and you can also choose **OpenAbi ▸ Check for Updates…**.
+- Since you'll rarely open the app itself, the Finder extension also checks once a day. When a new version is out, an **Update OpenAbi to x.y…** item appears in your right‑click menu.
+- Updates are signed (EdDSA) and verified before installing, then OpenAbi relaunches. Homebrew installs update the same way.
+
+OpenAbi only goes online to check for updates (the [`appcast.xml`](https://firatmelih.github.io/OpenAbi/appcast.xml) feed and release notes on GitHub Pages) and to download them from GitHub Releases.
+
 ## How it works
 
-```
+```text
 ┌──────────────────────┐   rules.json (App Group)   ┌──────────────────────────┐
 │  OpenAbi.app         │ ─────────────────────────▶ │  Finder Sync extension   │
-│  SwiftUI, drag & drop│                            │  builds the context menu │
+│  SwiftUI + Sparkle   │                            │  context menu & toolbar  │
 └──────────┬───────────┘                            └────────────┬─────────────┘
            │ installs                                            │ runs on click
            ▼                                                     ▼
@@ -91,7 +110,7 @@ Your rules stay on your Mac in `~/Library/Group Containers/XQH36L7379.com.melihf
 
 ## Build from source
 
-Requires Xcode 26 or later (the icon is an Icon Composer `.icon`).
+Requires Xcode 26 or later (the icon is an Icon Composer `.icon`). Sparkle is pulled in by Swift Package Manager.
 
 ```bash
 git clone https://github.com/firatmelih/OpenAbi.git
@@ -99,28 +118,34 @@ cd OpenAbi
 open OpenAbi.xcodeproj   # then Run the "OpenAbi" scheme
 ```
 
-In **Signing & Capabilities**, set your own team for both targets, and replace the `XQH36L7379` App Group prefix in `Config/*.entitlements` and `Shared/Rules.swift`.
+For your own fork, set your team in **Signing & Capabilities** for both targets, and replace the `XQH36L7379` App Group prefix in `Config/*.entitlements` and `Shared/Rules.swift`.
 
-To produce a signed (and optionally notarized) DMG:
+### Releasing
 
-```bash
-scripts/release.sh                          # Developer ID signed DMG in ./dist
-NOTARY_PROFILE=OpenAbi scripts/release.sh   # + notarize & staple
-```
+1. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` (Sparkle compares the build number).
+2. Add `docs/release-notes/<version>.html`.
+3. Build, notarize, sign for Sparkle, and write `docs/appcast.xml`:
+   ```bash
+   NOTARY_PROFILE=OpenAbi scripts/release.sh
+   ```
+4. Publish the DMG first (`gh release create v<version> dist/OpenAbi.dmg`), then commit and push `docs/appcast.xml` and bump `version`/`sha256` in `Casks/openabi.rb`.
+
+The Sparkle private key lives in the maintainer's Keychain (account `OpenAbi`). The public key is `SUPublicEDKey` in `Config/OpenAbi-Info.plist`.
 
 ### Project layout
 
 | Path | What's inside |
 | --- | --- |
-| `OpenAbi/` | The app: SwiftUI window, rule editing, helper-script installer, app icon |
-| `FinderExtension/` | The Finder Sync extension that builds the menu and launches apps |
+| `OpenAbi/` | The app: SwiftUI window, presets, rule editing, Sparkle updater, helper-script installer, app icon |
+| `FinderExtension/` | The Finder Sync extension: context menu, toolbar button, daily update check |
 | `Shared/` | Rule model and storage used by both targets |
-| `Config/` | Entitlements and the extension's `Info.plist` |
-| `docs/` | The [website](https://firatmelih.github.io/OpenAbi/) (GitHub Pages) |
+| `Config/` | Entitlements and Info.plists |
+| `Casks/` | Homebrew cask |
+| `docs/` | The [website](https://firatmelih.github.io/OpenAbi/), update feed, and release notes (GitHub Pages) |
 
 ## Uninstall
 
-Quit OpenAbi and move it to the Trash. To remove its leftover data too:
+Quit OpenAbi and move it to the Trash (or `brew uninstall --zap --cask openabi`). To remove its leftover data by hand:
 
 ```bash
 rm -rf ~/Library/Group\ Containers/XQH36L7379.com.melihfirat.OpenAbi \
