@@ -46,8 +46,7 @@ Tired of dragging folders onto the Dock or digging through **Open With ▸ Other
 2. Open it and drag **OpenAbi** into **Applications**.
 3. Launch OpenAbi once. It turns on its Finder extension for you; the green dot at the top of the window confirms it.
 
-> [!NOTE]
-> If macOS says it **can't verify the developer**, open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**. You only have to do this once.
+OpenAbi is signed with a Developer ID and notarized by Apple, so it opens like any other app.
 
 <details>
 <summary><b>The menu items don't show up?</b></summary>

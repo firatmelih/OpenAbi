@@ -27,6 +27,20 @@ xcodebuild -project OpenAbi.xcodeproj -scheme OpenAbi -configuration Release \
 APP="$BUILD/Build/Products/Release/OpenAbi.app"
 codesign --verify --deep --strict --verbose=2 "$APP"
 
+notarize() {
+    xcrun notarytool submit "$1" --keychain-profile "$NOTARY_PROFILE" --wait | tee "$BUILD/notary.log"
+    grep -q "status: Accepted" "$BUILD/notary.log"
+}
+
+if [[ -n "${NOTARY_PROFILE:-}" ]]; then
+    # Staple the app itself so it still opens offline after being copied out of the DMG.
+    echo "==> Notarizing app"
+    ditto -c -k --keepParent "$APP" "$BUILD/OpenAbi.zip"
+    notarize "$BUILD/OpenAbi.zip"
+    xcrun stapler staple "$APP"
+    spctl --assess --type execute --verbose "$APP"
+fi
+
 echo "==> Packaging DMG"
 mkdir -p "$DIST/dmg"
 cp -R "$APP" "$DIST/dmg/"
@@ -37,8 +51,8 @@ rm -rf "$DIST/dmg"
 codesign --sign "$IDENTITY" --timestamp "$DMG"
 
 if [[ -n "${NOTARY_PROFILE:-}" ]]; then
-    echo "==> Notarizing"
-    xcrun notarytool submit "$DMG" --keychain-profile "$NOTARY_PROFILE" --wait
+    echo "==> Notarizing DMG"
+    notarize "$DMG"
     xcrun stapler staple "$DMG"
     spctl --assess --type open --context context:primary-signature --verbose "$DMG"
 else
